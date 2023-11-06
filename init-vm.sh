@@ -7,7 +7,11 @@ cd setup-vm
 sudo apt-get update
 
 # install node, npm, dig & jq
-sudo apt-get install -y nodejs npm dnsutils jq
+sudo apt-get install -y dnsutils jq
+
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+source ~/.bashrc
+nvm install 18
 
 # install docker
 # Add Docker's official GPG key:
