@@ -24,7 +24,7 @@ sudo usermod -aG docker azureuser
 # Install PowerShell
 mkdir -p powershell
 cd powershell
-wget https://github.com/PowerShell/PowerShell/releases/download/v7.3.9/powershell-7.3.9-linux-x64.tar.gz
+wget -q https://github.com/PowerShell/PowerShell/releases/download/v7.3.9/powershell-7.3.9-linux-x64.tar.gz
 tar -xvf powershell-7.3.9-linux-x64.tar.gz -C .
 sudo ln -fs $PWD/pwsh /usr/local/bin/pwsh
 
