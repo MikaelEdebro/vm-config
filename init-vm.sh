@@ -9,6 +9,8 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get update
 # install dig & jq
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq dnsutils jq
 
+source ~/.bashrc
+
 # install node & npm using silent mode for curl and n
 curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n | bash -s lts
 
