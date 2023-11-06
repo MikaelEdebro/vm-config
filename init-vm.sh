@@ -7,8 +7,7 @@ cd setup-vm
 sudo apt-get update
 
 # install node, npm, dig & jq
-sudo apt-get install -y dnsutils
-# sudo apt-get install -y nodejs npm dnsutils jq
+sudo apt-get install -y nodejs npm dnsutils jq
 
 # install docker
 # Add Docker's official GPG key:
@@ -36,4 +35,4 @@ sudo apt-get install -y dnsutils
 # curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # # reload bashrc
-# source ~/.bashrc
+source ~/.bashrc
