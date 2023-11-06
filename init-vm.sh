@@ -50,6 +50,8 @@ sudo dpkg -i powershell_7.3.9-1.deb_amd64.deb
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -yf
 
 # Verify the installation
+sudo ln -s /usr/bin/pwsh /usr/local/bin/pwsh
+
 pwsh -v
 
 
