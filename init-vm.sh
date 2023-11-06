@@ -25,8 +25,16 @@ sudo usermod -aG docker azureuser
 mkdir -p powershell
 cd powershell
 wget -q https://github.com/PowerShell/PowerShell/releases/download/v7.3.9/powershell-7.3.9-linux-x64.tar.gz
-tar -xvf powershell-7.3.9-linux-x64.tar.gz -C .
-sudo ln -fs $PWD/pwsh /usr/local/bin/pwsh
+tar -xzf powershell-7.3.9-linux-x64.tar.gz
+
+# Check if 'pwsh' exists and link it to /usr/local/bin
+if [ -f "$PWD/pwsh" ]; then
+    sudo ln -fs $PWD/pwsh /usr/local/bin/pwsh
+    echo "PowerShell has been installed and linked."
+else
+    echo "Error: PowerShell binary 'pwsh' does not exist in the extracted directory."
+    exit 1
+fi
 
 # Install Azure CLI
 curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
