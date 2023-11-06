@@ -29,6 +29,9 @@ tar -xzf powershell-7.3.9-linux-x64.tar.gz
 
 # Check if 'pwsh' exists and link it to /usr/local/bin
 if [ -f "$PWD/pwsh" ]; then
+    # Set execute permissions
+    chmod +x $PWD/pwsh
+    # Link 'pwsh' to /usr/local/bin
     sudo ln -fs $PWD/pwsh /usr/local/bin/pwsh
     echo "PowerShell has been installed and linked."
 else
