@@ -29,5 +29,5 @@ tar -xvf powershell-7.3.9-linux-x64.tar.gz -C .
 sudo ln -fs $PWD/pwsh /usr/local/bin/pwsh
 
 # Install Azure CLI
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
