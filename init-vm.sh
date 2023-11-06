@@ -13,7 +13,7 @@ sudo apt-get update
 sudo apt-get install -yq dnsutils jq
 
 # install node & npm using silent mode for curl and n
-curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n | bash -s -- -n -q lts
+curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n | bash -s lts
 
 # Install docker and other prerequisites
 sudo apt-get install -yq apt-transport-https ca-certificates curl software-properties-common
