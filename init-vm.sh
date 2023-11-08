@@ -42,5 +42,3 @@ az storage blob download --account-name savcepipelinedev --container-name vsu-cl
 unzip -q ./vsu-cli-latest.zip -d .
 npm pkg delete scripts.prepare
 npm install -g --omit=dev
-
-vsu --help
