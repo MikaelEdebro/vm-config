@@ -35,6 +35,7 @@ curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 source ~/.bashrc
 
 # install VSU CLI
+sudo su azureuser
 mkdir -p ~/vsu-cli
 cd ~/vsu-cli
 az login --identity --username /subscriptions/50a73d67-b395-4eef-b655-9cd55a7fbbf3/resourcegroups/rg-vce-pipeline-dev/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-vce-pipeline-dev
