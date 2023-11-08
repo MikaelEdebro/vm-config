@@ -4,7 +4,7 @@
 sudo DEBIAN_FRONTEND=noninteractive apt-get update
 
 # install dig & jq
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq dnsutils jq
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq dnsutils jq zip unzip
 
 # needed for dpkg to work
 source ~/.bashrc
