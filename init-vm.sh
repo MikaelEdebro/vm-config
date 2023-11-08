@@ -41,6 +41,6 @@ az login --identity --username /subscriptions/50a73d67-b395-4eef-b655-9cd55a7fbb
 az storage blob download --account-name savcepipelinedev --container-name vsu-cli --name vsu-cli-latest.zip --file ./vsu-cli-latest.zip --auth-mode login
 unzip ./vsu-cli-latest.zip -d .
 npm pkg delete scripts.prepare
-sudo npm install --omit=dev --force
+sudo npm install -g --omit=dev --force
 source ~/.bashrc
 vsu --help
