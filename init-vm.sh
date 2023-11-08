@@ -34,5 +34,13 @@ curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 source ~/.bashrc
 
+# install VSU CLI
+mkdir -p ~/vsu-cli
+cd ~/vsu-cli
 az login --identity --username /subscriptions/50a73d67-b395-4eef-b655-9cd55a7fbbf3/resourcegroups/rg-vce-pipeline-dev/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-vce-pipeline-dev
-az storage blob download --account-name savcepipelinedev --container-name vsu-cli --name vsu-cli-latest.zip --file ~/vsu-cli/vsu-cli-latest.zip --auth-mode login
+az storage blob download --account-name savcepipelinedev --container-name vsu-cli --name vsu-cli-latest.zip --file ./vsu-cli-latest.zip --auth-mode login
+unzip ./vsu-cli-latest.zip -d .
+npm pkg delete scripts.prepare
+sudo npm install --omit=dev --force
+source ~/.bashrc
+vsu --help
