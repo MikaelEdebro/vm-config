@@ -45,4 +45,4 @@ npm install -g --omit=dev
 
 
 # pull base images to speed up docker build
-docker pull docker.io/library/node:18.16
+docker pull node:18.16-alpine
