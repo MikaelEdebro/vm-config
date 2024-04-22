@@ -32,7 +32,7 @@ sudo ln -s /usr/bin/pwsh /usr/local/bin/pwsh
 # Install Azure CLI
 curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-source ~/.bashrc
+# source ~/.bashrc
 
 # install VSU CLI
 # mkdir -p /usr/local/lib/vsu-cli && cd /usr/local/lib/vsu-cli
