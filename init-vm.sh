@@ -40,7 +40,7 @@ az login --identity --username /subscriptions/d2e4cd6f-ef6e-476a-a6d7-ef1965d9f5
 patToken=$(az keyvault secret show --vault-name kv-vce-devops-agents-prd --name AzDevopsPatToken --query "value" --output tsv)
 
 NPM_FEED_URL="pkgs.dev.azure.com/VolvoGroup-MASDCL/VCEBusInfoServLayer/_packaging/VCE-MS-PoC/npm"
-PAT_BASE64=$(echo "${patToken}" | base64 -w 0)
+PAT_BASE64=$(echo "${patToken}" | base64)
 
 echo "patToken: ${patToken}"
 echo "PAT_BASE64: ${PAT_BASE64}"
