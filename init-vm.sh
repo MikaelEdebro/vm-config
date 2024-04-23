@@ -35,7 +35,8 @@ curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 # source ~/.bashrc
 
 # install VSU CLI
-az account set -s d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557
+# az account set --subscription d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557
+az login --identity --username /subscriptions/d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557/resourcegroups/rg-vce-devops-agents-prd/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-vce-devops-agents
 patToken=$(az keyvault secret show --vault-name kv-vce-devops-agents-prd --name AzDevopsPatToken --query "value" --output tsv)
 
 declare -R NPM_FEED_URL="pkgs.dev.azure.com/VolvoGroup-MASDCL/VCEBusInfoServLayer/_packaging/VCE-MS-PoC/npm"
