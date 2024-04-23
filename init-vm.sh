@@ -38,10 +38,14 @@ curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 # az account set --subscription d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557
 az login --identity --username /subscriptions/d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557/resourcegroups/rg-vce-devops-agents-prd/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-vce-devops-agents
 patToken=$(az keyvault secret show --vault-name kv-vce-devops-agents-prd --name AzDevopsPatToken --query "value" --output tsv)
-echo "patToken: ${patToken}"
 
 NPM_FEED_URL="pkgs.dev.azure.com/VolvoGroup-MASDCL/VCEBusInfoServLayer/_packaging/VCE-MS-PoC/npm"
 PAT_BASE64=$(echo "${patToken}" | base64 -w 0)
+
+echo "patToken: ${patToken}"
+echo "PAT_BASE64: ${PAT_BASE64}"
+echo "NPM_FEED_URL: ${NPM_FEED_URL}"
+
 
 # token as is
 npm config --user set "//${NPM_FEED_URL}/registry/:username" "VolvoGroup-MASDCL"
