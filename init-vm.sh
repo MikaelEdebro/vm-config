@@ -35,14 +35,22 @@ curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 # source ~/.bashrc
 
 # install VSU CLI
-mkdir -p /usr/local/lib/vsu-cli && cd /usr/local/lib/vsu-cli
+az account set -s d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557
+patToken=$(az keyvault secret show --vault-name kv-vce-devops-agents-prd --name AzDevopsPatToken --query "value" --output tsv)
 
-az login --identity --username /subscriptions/d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557/resourcegroups/rg-vce-devops-agents-prd/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-vce-devops-agents
-az storage blob download --account-name savceterraformagentsprd --container-name vsu --name vsu.zip --file ./vsu.zip --auth-mode login
-unzip -q ./vsu.zip -d .
-npm pkg delete scripts.prepare
-npm install -g --omit=dev
+declare -R NPM_FEED_URL="pkgs.dev.azure.com/VolvoGroup-MASDCL/VCEBusInfoServLayer/_packaging/VCE-MS-PoC/npm"
 
+declare PAT_BASE64
+
+PAT_BASE64=$(print "${patToken:?}" | base64 -w 0)
+
+# token as is
+npm config --user set "//${NPM_FEED_URL:?}/registry/:username" "VolvoGroup-MASDCL"
+npm config --user set "//${NPM_FEED_URL:?}/registry/:_password" "${PAT_BASE64:?}"
+npm config --user set "//${NPM_FEED_URL:?}/registry/:email" "npm requires email to be set but doesn't use the value"
+npm config --user set registry "https://${NPM_FEED_URL:?}/registry"
+
+npm i @volvo/vce-service-util@latest -g
 
 # pull base images to speed up docker build
-# docker pull node:18.16-alpine
+docker pull node:lts-alpine
