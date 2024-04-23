@@ -35,13 +35,13 @@ curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 # source ~/.bashrc
 
 # install VSU CLI
-# mkdir -p /usr/local/lib/vsu-cli && cd /usr/local/lib/vsu-cli
+mkdir -p /usr/local/lib/vsu-cli && cd /usr/local/lib/vsu-cli
 
-# az login --identity --username /subscriptions/50a73d67-b395-4eef-b655-9cd55a7fbbf3/resourcegroups/rg-vce-pipeline-dev/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-vce-pipeline-dev
-# az storage blob download --account-name savcepipelinedev --container-name vsu-cli --name vsu-cli-latest.zip --file ./vsu-cli-latest.zip --auth-mode login
-# unzip -q ./vsu-cli-latest.zip -d .
-# npm pkg delete scripts.prepare
-# npm install -g --omit=dev
+az login --identity --username /subscriptions/d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557/resourcegroups/rg-vce-devops-agents-prd/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-vce-devops-agents
+az storage blob download --account-name savceterraformagentsprd --container-name vsu --name vsu.zip --file ./vsu.zip --auth-mode login
+unzip -q ./vsu.zip -d .
+npm pkg delete scripts.prepare
+npm install -g --omit=dev
 
 
 # pull base images to speed up docker build
