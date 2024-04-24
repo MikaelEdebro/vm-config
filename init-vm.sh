@@ -1,54 +1,74 @@
 #!/bin/bash
 
-set -eo pipefail
+set -euo pipefail
+
+if [[ "${USER-unknown}" != "AzDevOps" ]]; then
+  # setup AzDevOps user
+  # Create our user account if it does not exist already
+  if ! id AzDevOps &>/dev/null; then
+    sudo apt-get update
+    sudo useradd -m AzDevOps
+    sudo usermod -a -G adm AzDevOps
+    sudo usermod -a -G sudo AzDevOps
+    sudo chmod -R +r /home
+    sudo apt-get install -yq acl
+    setfacl -Rdm "u:AzDevOps:rwX" /home
+    setfacl -Rb /home/AzDevOps
+    echo 'AzDevOps ALL=NOPASSWD: ALL' >>/etc/sudoers
+  fi
+  # run this script as AzDevOps
+  su AzDevOps -c "${BASH_SOURCE[0]}"
+  exit 0
+fi
 
 # update apt-get
-sudo DEBIAN_FRONTEND=noninteractive apt-get update
+sudo apt-get update
 
 # install dig, jq, and other utils
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq dnsutils jq zip unzip
-
-# needed for dpkg to work
-# shellcheck disable=SC1090
-source ~/.bashrc
+sudo apt-get install -yq dnsutils jq zip unzip
 
 # install docker and other prerequisites
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq apt-transport-https ca-certificates wget curl software-properties-common
+sudo apt-get install -yq apt-transport-https ca-certificates wget curl software-properties-common
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
-sudo DEBIAN_FRONTEND=noninteractive apt-get update
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq docker-ce
-
-# run docker command without sudo
-sudo usermod -aG docker azureuser
-
-# install node lts
-curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&\
-sudo apt-get install -y nodejs
-
-# install PowerShell
-mkdir -p powershell
-cd powershell
-wget -q "https://github.com/PowerShell/PowerShell/releases/download/v7.3.9/powershell_7.3.9-1.deb_amd64.deb"
-sudo dpkg -i powershell_7.3.9-1.deb_amd64.deb
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -yf
-sudo ln -s /usr/bin/pwsh /usr/local/bin/pwsh
+sudo apt-get update
+sudo apt-get install -yq docker-ce
+sudo usermod -a -G docker AzDevOps
 
 # install Azure CLI
 curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 az login --identity --username /subscriptions/d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557/resourcegroups/rg-vce-devops-agents-prd/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-vce-devops-agents
 
-declare NPM_FEED_URL
-declare PAT_BASE64
+declare npm_feed_url pat_base64
 
-NPM_FEED_URL="pkgs.dev.azure.com/VolvoGroup-MASDCL/VCEBusInfoServLayer/_packaging/VCE-MS-PoC/npm"
-PAT_BASE64=$(az keyvault secret show --vault-name kv-vce-devops-agents-prd --name AzDevopsPatTokenBase64 --query "value" --output tsv)
+npm_feed_url="pkgs.dev.azure.com/VolvoGroup-MASDCL/VCEBusInfoServLayer/_packaging/VCE-MS-PoC/npm"
+pat_base64=$(az keyvault secret show --vault-name kv-vce-devops-agents-prd --name AzDevopsPatTokenBase64 --query "value" --output tsv)
 
-npm config --global set "//${NPM_FEED_URL:?}/registry/:username" "VolvoGroup-MASDCL"
-npm config --global set "//${NPM_FEED_URL:?}/registry/:_password" "${PAT_BASE64:?}"
-npm config --global set "//${NPM_FEED_URL:?}/registry/:email" "npm requires email to be set but doesn't use the value"
-npm config --global set registry "https://${NPM_FEED_URL:?}/registry"
+# install node lts
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&
+  sudo apt-get install -y nodejs
 
-# add vsu function to bash
+# setup user wide .npmrc
+npm config --user set "//${npm_feed_url:?}/registry/:username" "VolvoGroup-MASDCL"
+npm config --user set "//${npm_feed_url:?}/registry/:_password" "${pat_base64:?}"
+npm config --user set "//${npm_feed_url:?}/registry/:email" "npm requires email to be set but doesn't use the value"
+npm config --user set registry "https://${npm_feed_url:?}/registry"
+
+# install vsu
+truncate -s 0 ~/.bashrc
 npx -y @volvo/vce-service-util@latest shell >>~/.bashrc
+
+# install PowerShell
+sudo apt-get install -y wget apt-transport-https software-properties-common
+
+# shellcheck disable=SC1091
+source /etc/os-release
+wget -q https://packages.microsoft.com/config/ubuntu/"${VERSION_ID:?}"/packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+rm packages-microsoft-prod.deb
+sudo apt-get update
+sudo apt-get install -y powershell
+
+# install Python with pip
+sudo apt-get install -y python3-pip
