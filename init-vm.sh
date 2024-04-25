@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-if [[ "${USER-unknown}" != "AzDevOps" ]]; then
+if [[ "$(whoami)" != "AzDevOps" ]]; then
   # setup AzDevOps user
   # Create our user account if it does not exist already
   if ! id AzDevOps &>/dev/null; then
@@ -16,8 +16,11 @@ if [[ "${USER-unknown}" != "AzDevOps" ]]; then
     setfacl -Rb /home/AzDevOps
     echo 'AzDevOps ALL=NOPASSWD: ALL' >>/etc/sudoers
   fi
+
   # run this script as AzDevOps
-  su AzDevOps -c "${BASH_SOURCE[0]}"
+  su AzDevOps -c "sudo cat ${BASH_SOURCE[0]} | sudo -u AzDevOps tee /home/AzDevOps/devops.sh"
+  chmod +x /home/AzDevOps/devops.sh
+  su - AzDevOps -c /home/AzDevOps/devops.sh
   exit 0
 fi
 
@@ -29,7 +32,7 @@ sudo apt-get install -yq dnsutils jq zip unzip
 
 # install docker and other prerequisites
 sudo apt-get install -yq apt-transport-https ca-certificates wget curl software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
 sudo apt-get update
 sudo apt-get install -yq docker-ce
@@ -57,6 +60,7 @@ npm config --user set registry "https://${npm_feed_url:?}/registry"
 
 # install vsu
 truncate -s 0 ~/.bashrc
+
 npx -y @volvo/vce-service-util@latest shell >>~/.bashrc
 
 # install PowerShell
