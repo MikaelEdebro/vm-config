@@ -59,9 +59,7 @@ npm config --user set "//${npm_feed_url:?}/registry/:email" "npm requires email 
 npm config --user set registry "https://${npm_feed_url:?}/registry"
 
 # install vsu
-truncate -s 0 ~/.bashrc
-
-npx -y @volvo/vce-service-util@latest shell >>~/.bashrc
+npx -y @volvo/vce-service-util@latest --version
 
 # install PowerShell
 sudo apt-get install -y wget apt-transport-https software-properties-common
