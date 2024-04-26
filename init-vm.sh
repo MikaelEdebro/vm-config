@@ -32,7 +32,7 @@ sudo apt-get update
 # install dig, jq, and other utils
 sudo apt-get install -yq dnsutils jq zip unzip
 
-# install docker and other prerequisites
+# install docker and other prerequisites (https://docs.docker.com/engine/install/ubuntu/)
 # Add Docker's official GPG key:
 sudo apt-get update
 sudo apt-get install ca-certificates curl
