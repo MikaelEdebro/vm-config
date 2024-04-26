@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+export DEBIAN_FRONTEND=noninteractive
+
 if [[ "$(whoami)" != "AzDevOps" ]]; then
   # setup AzDevOps user
   # Create our user account if it does not exist already
@@ -31,9 +33,20 @@ sudo apt-get update
 sudo apt-get install -yq dnsutils jq zip unzip
 
 # install docker and other prerequisites
-sudo apt-get install -yq apt-transport-https ca-certificates wget curl software-properties-common
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+# Add the repository to Apt sources:
+# shellcheck disable=SC1091
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
 sudo apt-get update
 sudo apt-get install -yq docker-ce
 sudo usermod -a -G docker AzDevOps
