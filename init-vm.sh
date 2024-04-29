@@ -59,7 +59,7 @@ az login --identity --username /subscriptions/d2e4cd6f-ef6e-476a-a6d7-ef1965d9f5
 declare npm_feed_url pat_base64
 
 npm_feed_url="pkgs.dev.azure.com/VolvoGroup-MASDCL/VCEBusInfoServLayer/_packaging/VCE-MS-PoC/npm"
-pat_base64=$(az keyvault secret show --vault-name kv-vce-devops-agents-prd --name AzDevopsPatTokenBase64 --query "value" --output tsv)
+pat_base64=$(az keyvault secret show --vault-name kv-vce-devops-agents --name AzDevopsPatTokenBase64 --query "value" --output tsv)
 
 # install node lts
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&
