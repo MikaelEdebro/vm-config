@@ -37,7 +37,7 @@ curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 # install VSU CLI
 mkdir -p /usr/local/lib/vsu-cli && cd /usr/local/lib/vsu-cli
 
-az login --identity --username /subscriptions/d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557/resourcegroups/rg-vce-devops-agents-prd/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-vce-devops-agents
+az login --identity --username /subscriptions/d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557/resourcegroups/rg-vce-devops-agents-prd/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-devops-agents
 az storage blob download --account-name savceterraformagentsprd --container-name vsu --name vsu.zip --file ./vsu.zip --auth-mode login
 unzip -q ./vsu.zip -d .
 npm pkg delete scripts.prepare

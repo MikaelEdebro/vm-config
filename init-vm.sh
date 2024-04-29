@@ -54,7 +54,7 @@ sudo usermod -a -G docker AzDevOps
 # install Azure CLI
 curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-az login --identity --username /subscriptions/d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557/resourcegroups/rg-vce-devops-agents-prd/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-vce-devops-agents
+az login --identity --username /subscriptions/d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557/resourcegroups/rg-vce-devops-agents-prd/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-devops-agents
 
 declare npm_feed_url pat_base64
 
