@@ -4,6 +4,9 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 
+# update apt-get
+sudo apt-get update
+
 if [[ "$(whoami)" != "AzDevOps" ]]; then
   # setup AzDevOps user
   # Create our user account if it does not exist already
