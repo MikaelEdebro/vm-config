@@ -57,12 +57,12 @@ sudo usermod -a -G docker AzDevOps
 # install Azure CLI
 curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-az login --identity --username /subscriptions/d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557/resourcegroups/rg-vce-devops-agents-prd/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-devops-agents
+az login --identity --username /subscriptions/d2e4cd6f-ef6e-476a-a6d7-ef1965d9f557/resourcegroups/rg-vce-devops-agents/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sp-devops-agents
 
 declare npm_feed_url pat_base64
 
 npm_feed_url="pkgs.dev.azure.com/VolvoGroup-MASDCL/VCEBusInfoServLayer/_packaging/VCE-MS-PoC/npm"
-pat_base64=$(az keyvault secret show --vault-name kv-vce-devops-agents --name AzDevopsPatTokenBase64 --query "value" --output tsv)
+pat_base64=$(az keyvault secret show --vault-name kv-vce-devops-agents2 --name AzDevopsPatTokenBase64 --query "value" --output tsv)
 
 # install node lts
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&
