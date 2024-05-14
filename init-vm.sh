@@ -89,4 +89,4 @@ sudo apt-get update
 sudo apt-get install -y powershell
 
 # install Python with pip
-sudo apt-get install -y python3-pip
+# sudo apt-get install -y python3-pip
