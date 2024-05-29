@@ -3,6 +3,7 @@
 set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
+export IS_SELF_HOSTED_AGENT=true
 
 # update apt-get
 sudo apt-get update
