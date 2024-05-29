@@ -33,7 +33,7 @@ fi
 sudo apt-get update
 
 # install dig, jq, and other utils
-sudo apt-get install -yq dnsutils jq zip unzip
+sudo apt-get install -yq dnsutils jq zip unzip 
 
 # install docker and other prerequisites (https://docs.docker.com/engine/install/ubuntu/)
 # Add Docker's official GPG key:
@@ -68,6 +68,9 @@ pat_base64=$(az keyvault secret show --vault-name kv-vce-devops-agents2 --name A
 curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&
   sudo apt-get install -y nodejs
 
+# install psql client
+sudo apt-get install -y postgresql-client
+
 # setup user wide .npmrc
 npm config --user set "//${npm_feed_url:?}/registry/:username" "VolvoGroup-MASDCL"
 npm config --user set "//${npm_feed_url:?}/registry/:_password" "${pat_base64:?}"
@@ -89,4 +92,4 @@ sudo apt-get update
 sudo apt-get install -y powershell
 
 # install Python with pip
-# sudo apt-get install -y python3-pip
+sudo apt-get install -y python3-pip
