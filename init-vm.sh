@@ -3,7 +3,6 @@
 set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
-export IS_SELF_HOSTED_AGENT=true
 
 # Constants
 AZ_USER="AzDevOps"
@@ -26,6 +25,7 @@ if [[ "$(whoami)" != "$AZ_USER" ]]; then
         sudo chmod -R +r /home
         sudo chown -R "$AZ_USER:$AZ_USER" /home
         echo "$AZ_USER ALL=NOPASSWD: ALL" | sudo tee -a /etc/sudoers
+        echo "export IS_SELF_HOSTED_AGENT=true" >> /home/"$AZ_USER"/.bashrc
     fi
 
     # Running script as AzDevOps user
