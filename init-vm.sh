@@ -10,15 +10,36 @@ AZ_USER="AzDevOps"
 DOCKER_GPG_KEY_URL="https://download.docker.com/linux/ubuntu/gpg"
 DOCKER_APT_SOURCE="deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable"
 NPM_FEED_URL="pkgs.dev.azure.com/VolvoGroup-MASDCL/VCEBusInfoServLayer/_packaging/VCE-MS-PoC/npm"
+MAX_RETRIES=3
+SLEEP_INTERVAL=5
 
 # Log function
 log() {
   echo "[INFO] $1"
 }
 
+# Retry function
+retry() {
+  local -r cmd=$1
+  local -i retries=$2
+  local -i count=0
+  until $cmd; do
+    exit=$?
+    count=$((count + 1))
+    if [[ $count -lt $retries ]]; then
+      log "Retry $count/$retries exited $exit, retrying in $SLEEP_INTERVAL seconds..."
+      sleep $SLEEP_INTERVAL
+    else
+      log "Retry $count/$retries exited $exit, no more retries left."
+      return $exit
+    fi
+  done
+  return 0
+}
+
 # Update apt-get
 log "Updating apt-get"
-sudo apt-get update
+retry "sudo apt-get update" $MAX_RETRIES
 
 # Creating AzDevOps user if not exists
 if [[ "$(whoami)" != "$AZ_USER" ]]; then
@@ -27,7 +48,7 @@ if [[ "$(whoami)" != "$AZ_USER" ]]; then
     sudo useradd -m "$AZ_USER"
     sudo usermod -aG adm,sudo "$AZ_USER"
     sudo chmod -R +r /home
-    sudo apt-get install -yq acl
+    retry "sudo apt-get install -yq acl" $MAX_RETRIES
     setfacl -Rdm "u:$AZ_USER:rwX" /home
     setfacl -Rb /home/"$AZ_USER"
     echo "$AZ_USER ALL=NOPASSWD: ALL" | sudo tee -a /etc/sudoers
@@ -42,22 +63,21 @@ fi
 
 # Install essential packages
 log "Installing essential packages"
-sudo apt-get install -yq curl ca-certificates dnsutils jq zip wget unzip postgresql-client python3-pip
+retry "sudo apt-get install -yq curl ca-certificates dnsutils jq zip wget unzip postgresql-client python3-pip" $MAX_RETRIES
 
 # Install Docker
 log "Setting up Docker repository and installing Docker"
 sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL "$DOCKER_GPG_KEY_URL" -o /etc/apt/keyrings/docker.asc
+retry "sudo curl -fsSL $DOCKER_GPG_KEY_URL -o /etc/apt/keyrings/docker.asc" $MAX_RETRIES
 sudo chmod a+r /etc/apt/keyrings/docker.asc
 echo "$DOCKER_APT_SOURCE" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-sudo apt-get update
-sudo apt-get install -yq docker-ce
+retry "sudo apt-get update && sudo apt-get install -yq docker-ce" $MAX_RETRIES
 sudo usermod -aG docker "$AZ_USER"
 
 # Install Node LTS
 log "Installing Node.js LTS"
-curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+retry "curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -" $MAX_RETRIES
 sudo apt-get install -y nodejs
 
 # Install PowerShell
@@ -65,15 +85,14 @@ log "Installing PowerShell"
 sudo apt-get install -y apt-transport-https software-properties-common
 # shellcheck disable=SC1091
 source /etc/os-release
-wget -q https://packages.microsoft.com/config/ubuntu/"${VERSION_ID:?}"/packages-microsoft-prod.deb
+retry "wget -q https://packages.microsoft.com/config/ubuntu/${VERSION_ID:?}/packages-microsoft-prod.deb" $MAX_RETRIES
 sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
-sudo apt-get update
-sudo apt-get install -y powershell
+retry "sudo apt-get update && sudo apt-get install -y powershell" $MAX_RETRIES
 
 # Install Azure CLI
 log "Installing Azure CLI"
-curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
+retry "curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash" $MAX_RETRIES
 
 # Azure CLI Login
 log "Logging into Azure CLI"
@@ -81,13 +100,12 @@ az login --identity --username /subscriptions/d2e4cd6f-ef6e-476a-a6d7-ef1965d9f5
 
 # Setup npm configuration
 log "Setting up npm configuration"
-npm_feed_url="$NPM_FEED_URL"
 pat_base64=$(az keyvault secret show --vault-name kv-vce-agents --name AzDevopsPatTokenBase64 --query "value" --output tsv)
-npm config --user set "//${npm_feed_url:?}/registry/:username" "VolvoGroup-MASDCL"
-npm config --user set "//${npm_feed_url:?}/registry/:_password" "${pat_base64:?}"
-npm config --user set "//${npm_feed_url:?}/registry/:email" "npm requires email to be set but doesn't use the value"
-npm config --user set registry "https://${npm_feed_url:?}/registry"
+npm config --user set "//${NPM_FEED_URL:?}/registry/:username" "VolvoGroup-MASDCL"
+npm config --user set "//${NPM_FEED_URL:?}/registry/:_password" "${pat_base64:?}"
+npm config --user set "//${NPM_FEED_URL:?}/registry/:email" "npm requires email to be set but doesn't use the value"
+npm config --user set registry "https://${NPM_FEED_URL:?}/registry"
 
 # Install vsu
 log "Installing vsu"
-npx -y @volvo/vce-service-util@latest --version
+retry "npx -y @volvo/vce-service-util@latest --version" $MAX_RETRIES
