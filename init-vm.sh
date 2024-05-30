@@ -35,6 +35,7 @@ retry() {
 
 # Update apt-get
 log "Updating apt-get"
+echo "deb http://cz.archive.ubuntu.com/ubuntu trusty main" | sudo tee -a /etc/apt/sources.list > /dev/null
 sudo apt-get update
 
 # Creating AzDevOps user if not exists
@@ -44,7 +45,7 @@ if [[ "$(whoami)" != "$AZ_USER" ]]; then
     sudo useradd -m "$AZ_USER"
     sudo usermod -aG adm,sudo "$AZ_USER"
     sudo chmod -R +r /home
-    retry "sudo apt-get install -yq acl" $MAX_RETRIES
+    retry "sudo apt-get update && sudo apt-get install -yq acl" $MAX_RETRIES
     setfacl -Rdm "u:$AZ_USER:rwX" /home
     setfacl -Rb /home/"$AZ_USER"
     echo "$AZ_USER ALL=NOPASSWD: ALL" | sudo tee -a /etc/sudoers
@@ -69,10 +70,7 @@ sudo chmod a+r /etc/apt/keyrings/docker.asc
 
 # Add the repository to Apt sources:
 # shellcheck disable=SC1091
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 
 sudo apt-get update && sudo apt-get install -yq docker-ce
