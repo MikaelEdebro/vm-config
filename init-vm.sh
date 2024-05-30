@@ -15,7 +15,6 @@ log() {
 
 # Update apt-get
 log "Updating apt-get"
-echo "deb http://cz.archive.ubuntu.com/ubuntu trusty main" | sudo tee -a /etc/apt/sources.list > /dev/null
 sudo apt-get update
 
 # Creating AzDevOps user if not exists
@@ -25,7 +24,7 @@ if [[ "$(whoami)" != "$AZ_USER" ]]; then
     sudo useradd -m "$AZ_USER"
     sudo usermod -aG adm,sudo "$AZ_USER"
     sudo chmod -R +r /home
-    sudo apt-get update && sudo apt-get install -yq acl
+    sudo apt-get install -yq acl
     setfacl -Rdm "u:$AZ_USER:rwX" /home
     setfacl -Rb /home/"$AZ_USER"
     echo "$AZ_USER ALL=NOPASSWD: ALL" | sudo tee -a /etc/sudoers
