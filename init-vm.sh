@@ -108,7 +108,3 @@ npm config --user set "//${NPM_FEED_URL:?}/registry/:username" "VolvoGroup-MASDC
 npm config --user set "//${NPM_FEED_URL:?}/registry/:_password" "${pat_base64:?}"
 npm config --user set "//${NPM_FEED_URL:?}/registry/:email" "npm requires email to be set but doesn't use the value"
 npm config --user set registry "https://${NPM_FEED_URL:?}/registry"
-
-# Install vsu
-log "Installing vsu"
-npx -y @volvo/vce-service-util@latest --version
