@@ -8,34 +8,14 @@ export IS_SELF_HOSTED_AGENT=true
 # Constants
 AZ_USER="AzDevOps"
 NPM_FEED_URL="pkgs.dev.azure.com/VolvoGroup-MASDCL/VCEBusInfoServLayer/_packaging/VCE-MS-PoC/npm"
-MAX_RETRIES=5
-SLEEP_INTERVAL=10
 
 log() {
     echo "[INFO] $1"
 }
 
-retry() {
-    local -r cmd=$1
-    local -i retries=$2
-    local -i count=0
-    until $cmd; do
-        exit=$?
-        count=$((count + 1))
-        if [[ $count -lt $retries ]]; then
-            log "Retry $count/$retries exited $exit, retrying in $SLEEP_INTERVAL seconds..."
-            sleep $SLEEP_INTERVAL
-        else
-            log "Retry $count/$retries exited $exit, no more retries left."
-            return $exit
-        fi
-    done
-    return 0
-}
-
 # Update apt-get
 log "Updating apt-get"
-retry "sudo apt-get update -yq" $MAX_RETRIES
+sudo apt-get update -yq
 
 # Create AzDevOps user if not exists
 if [[ "$(whoami)" != "$AZ_USER" ]]; then
@@ -44,7 +24,7 @@ if [[ "$(whoami)" != "$AZ_USER" ]]; then
         sudo useradd -m "$AZ_USER"
         sudo usermod -aG adm,sudo "$AZ_USER"
         sudo chmod -R +r /home
-        sudo chown -R "$AZ_USER":"$AZ_USER" /home
+        sudo chown -R "$AZ_USER:$AZ_USER" /home
         echo "$AZ_USER ALL=NOPASSWD: ALL" | sudo tee -a /etc/sudoers
     fi
 
@@ -57,7 +37,7 @@ fi
 
 # Install essential packages
 log "Installing essential packages"
-retry "sudo apt-get install -yq curl ca-certificates dnsutils jq zip wget unzip postgresql-client python3-pip" $MAX_RETRIES
+sudo apt-get install -yq curl ca-certificates dnsutils jq zip wget unzip postgresql-client python3-pip
 
 # Install Docker
 log "Setting up Docker repository and installing Docker"
@@ -65,31 +45,31 @@ sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-# Add the repository to Apt sources:
-# shellcheck disable=SC1091
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
-
-sudo apt-get update && sudo apt-get install -yq docker-ce
+# Add the repository to Apt sources
+log "Adding Docker repository"
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update -yq
+sudo apt-get install -yq docker-ce
 sudo usermod -aG docker "$AZ_USER"
 
 # Install Node LTS
 log "Installing Node.js LTS"
-retry "curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -" $MAX_RETRIES
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 # Install PowerShell
 log "Installing PowerShell"
 sudo apt-get install -y apt-transport-https software-properties-common
 source /etc/os-release
-retry "wget -q https://packages.microsoft.com/config/ubuntu/${VERSION_ID:?}/packages-microsoft-prod.deb" $MAX_RETRIES
+wget -q https://packages.microsoft.com/config/ubuntu/${VERSION_ID:?}/packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
-retry "sudo apt-get update -yq && sudo apt-get install -yq powershell" $MAX_RETRIES
+sudo apt-get update -yq
+sudo apt-get install -yq powershell
 
 # Install Azure CLI
 log "Installing Azure CLI"
-retry "curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash" $MAX_RETRIES
+curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # Azure CLI Login
 log "Logging into Azure CLI"
@@ -102,3 +82,5 @@ npm config --user set "//${NPM_FEED_URL:?}/registry/:username" "VolvoGroup-MASDC
 npm config --user set "//${NPM_FEED_URL:?}/registry/:_password" "${pat_base64:?}"
 npm config --user set "//${NPM_FEED_URL:?}/registry/:email" "npm requires email to be set but doesn't use the value"
 npm config --user set registry "https://${NPM_FEED_URL:?}/registry"
+
+log "Script completed successfully"
