@@ -7,8 +7,6 @@ export IS_SELF_HOSTED_AGENT=true
 
 # Constants
 AZ_USER="AzDevOps"
-DOCKER_GPG_KEY_URL="https://download.docker.com/linux/ubuntu/gpg"
-DOCKER_APT_SOURCE="deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable"
 NPM_FEED_URL="pkgs.dev.azure.com/VolvoGroup-MASDCL/VCEBusInfoServLayer/_packaging/VCE-MS-PoC/npm"
 MAX_RETRIES=3
 SLEEP_INTERVAL=5
@@ -68,11 +66,18 @@ retry "sudo apt-get install -yq curl ca-certificates dnsutils jq zip wget unzip 
 # Install Docker
 log "Setting up Docker repository and installing Docker"
 sudo install -m 0755 -d /etc/apt/keyrings
-retry "sudo curl -fsSL $DOCKER_GPG_KEY_URL -o /etc/apt/keyrings/docker.asc" $MAX_RETRIES
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
-echo "$DOCKER_APT_SOURCE" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-retry "sudo apt-get update && sudo apt-get install -yq docker-ce" $MAX_RETRIES
+# Add the repository to Apt sources:
+# shellcheck disable=SC1091
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+
+sudo apt-get update && sudo apt-get install -yq docker-ce
 sudo usermod -aG docker "$AZ_USER"
 
 # Install Node LTS
