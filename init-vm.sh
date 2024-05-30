@@ -11,12 +11,10 @@ NPM_FEED_URL="pkgs.dev.azure.com/VolvoGroup-MASDCL/VCEBusInfoServLayer/_packagin
 MAX_RETRIES=3
 SLEEP_INTERVAL=5
 
-# Log function
 log() {
   echo "[INFO] $1"
 }
 
-# Retry function
 retry() {
   local -r cmd=$1
   local -i retries=$2
@@ -37,7 +35,7 @@ retry() {
 
 # Update apt-get
 log "Updating apt-get"
-retry "sudo apt-get update" $MAX_RETRIES
+sudo apt-get update
 
 # Creating AzDevOps user if not exists
 if [[ "$(whoami)" != "$AZ_USER" ]]; then
@@ -61,7 +59,7 @@ fi
 
 # Install essential packages
 log "Installing essential packages"
-retry "sudo apt-get install -yq curl ca-certificates dnsutils jq zip wget unzip postgresql-client python3-pip" $MAX_RETRIES
+sudo apt-get install -yq curl ca-certificates dnsutils jq zip wget unzip postgresql-client python3-pip
 
 # Install Docker
 log "Setting up Docker repository and installing Docker"
@@ -82,7 +80,7 @@ sudo usermod -aG docker "$AZ_USER"
 
 # Install Node LTS
 log "Installing Node.js LTS"
-retry "curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -" $MAX_RETRIES
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 # Install PowerShell
@@ -90,14 +88,14 @@ log "Installing PowerShell"
 sudo apt-get install -y apt-transport-https software-properties-common
 # shellcheck disable=SC1091
 source /etc/os-release
-retry "wget -q https://packages.microsoft.com/config/ubuntu/${VERSION_ID:?}/packages-microsoft-prod.deb" $MAX_RETRIES
+wget -q https://packages.microsoft.com/config/ubuntu/${VERSION_ID:?}/packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb
 rm packages-microsoft-prod.deb
-retry "sudo apt-get update && sudo apt-get install -y powershell" $MAX_RETRIES
+sudo apt-get update && sudo apt-get install -y powershell
 
 # Install Azure CLI
 log "Installing Azure CLI"
-retry "curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash" $MAX_RETRIES
+curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # Azure CLI Login
 log "Logging into Azure CLI"
@@ -113,4 +111,4 @@ npm config --user set registry "https://${NPM_FEED_URL:?}/registry"
 
 # Install vsu
 log "Installing vsu"
-retry "npx -y @volvo/vce-service-util@latest --version" $MAX_RETRIES
+npx -y @volvo/vce-service-util@latest --version
