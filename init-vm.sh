@@ -8,29 +8,9 @@ export IS_SELF_HOSTED_AGENT=true
 # Constants
 AZ_USER="AzDevOps"
 NPM_FEED_URL="pkgs.dev.azure.com/VolvoGroup-MASDCL/VCEBusInfoServLayer/_packaging/VCE-MS-PoC/npm"
-MAX_RETRIES=3
-SLEEP_INTERVAL=5
 
 log() {
   echo "[INFO] $1"
-}
-
-retry() {
-  local -r cmd=$1
-  local -i retries=$2
-  local -i count=0
-  until $cmd; do
-    exit=$?
-    count=$((count + 1))
-    if [[ $count -lt $retries ]]; then
-      log "Retry $count/$retries exited $exit, retrying in $SLEEP_INTERVAL seconds..."
-      sleep $SLEEP_INTERVAL
-    else
-      log "Retry $count/$retries exited $exit, no more retries left."
-      return $exit
-    fi
-  done
-  return 0
 }
 
 # Update apt-get
@@ -45,7 +25,7 @@ if [[ "$(whoami)" != "$AZ_USER" ]]; then
     sudo useradd -m "$AZ_USER"
     sudo usermod -aG adm,sudo "$AZ_USER"
     sudo chmod -R +r /home
-    retry "sudo apt-get update && sudo apt-get install -yq acl" $MAX_RETRIES
+    sudo apt-get update && sudo apt-get install -yq acl
     setfacl -Rdm "u:$AZ_USER:rwX" /home
     setfacl -Rb /home/"$AZ_USER"
     echo "$AZ_USER ALL=NOPASSWD: ALL" | sudo tee -a /etc/sudoers
