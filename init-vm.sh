@@ -40,7 +40,8 @@ log "Installing essential packages"
 sudo apt-get install -yq curl ca-certificates dnsutils jq zip unzip wget postgresql-client python3-pip
 
 log "Installing yq"
-wget https://github.com/mikefarah/yq/releases/download/v4.2.0/yq_linux_amd64.tar.gz -O - | tar xz && mv yq_linux_amd64 /usr/bin/yq
+yq_version=$(curl -s https://api.github.com/repos/mikefarah/yq/releases/latest | jq -r '.tag_name')
+wget "https://github.com/mikefarah/yq/releases/download/${yq_version}/yq_linux_amd64.tar.gz" -O - | tar xz && sudo mv yq_linux_amd64 /usr/bin/yq
 
 # Install Docker
 log "Setting up Docker repository and installing Docker"
