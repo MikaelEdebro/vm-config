@@ -83,7 +83,7 @@ npm config --user set "//${NPM_FEED_URL:?}/registry/:_password" "${pat_base64:?}
 npm config --user set "//${NPM_FEED_URL:?}/registry/:email" "npm requires email to be set but doesn't use the value"
 npm config --user set registry "https://${NPM_FEED_URL:?}/registry"
 
-log "Installing VSU globally"
-sudo npm install -g @volvo/vce-service-util
+# log "Installing VSU globally"
+# sudo npm install -g @volvo/vce-service-util
 
 log "Script completed successfully"
