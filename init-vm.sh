@@ -90,4 +90,7 @@ npm config --user set registry "https://${NPM_FEED_URL:?}/registry"
 log "Installing VSU globally"
 sudo -E npm install -g @volvo/vce-service-util
 
+# fix npm permissions
+sudo chown -R 1001:1001 "/home/$AZ_USER/.npm"
+
 log "Script completed successfully"
